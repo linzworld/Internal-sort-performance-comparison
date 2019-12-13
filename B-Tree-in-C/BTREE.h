@@ -2,9 +2,7 @@
 #define _BTREE_H
 #define MAXM 10                     //定义B树的最大的阶数
 
-const int m = 4;                      //设定B树的阶数 
-const int Max = m - 1;                  //结点的最大关键字数量 
-const int Min = ( m - 1 ) / 2;              //结点的最小关键字数量 
+
 typedef int KeyType;                //KeyType为关键字类型
 
 typedef struct node {                //B树和B树结点类型 

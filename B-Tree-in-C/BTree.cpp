@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h> 
-
+int m = 4;                      //设定B树的阶数 
+int Max = m - 1;                  //结点的最大关键字数量 
+int Min = ( m - 1 ) / 2;              //结点的最小关键字数量 
 Status InitBTree( BTree& t ) {
 	//初始化B树 
 	t = NULL;
@@ -262,6 +264,7 @@ int FindBTNode( BTNode* p, KeyType k, int& i ) {
 		if (k == p->key [i])                            //结点p中查找关键字k成功 
 			return 1;
 	}
+	return 0;
 }
 
 
@@ -469,7 +472,17 @@ void Test2( ) {
 	system( "color 70" );
 	BTree t = NULL;
 	Result s;                                       //设定查找结果 
+	printf( "Enter number for degree of the tree:_____\b\b\b" );
+	scanf( "%d", &m );
+	int* p ;//通过指针变量改变全局变量
+	p = &Max;
+	*p = m - 1;
+	p = &Min;
+	*p = ( m - 1 ) / 2;
 	while (1) {
+		//system( "cls" );
+		printf( "============================================\n");
+		printf( "B树的阶数为%d:\n", m );
 		printf( "此时的B树：\n" );
 		PrintBTree( t );
 		printf( "\n" );
@@ -517,6 +530,7 @@ void Test2( ) {
 }
 
 int main( ) {
+	//Test1( );
 	Test2( );
 	return 0;
 }
