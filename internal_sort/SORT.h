@@ -20,11 +20,20 @@ typedef struct {
 	int size;//µ±Ç°ÈÝÁ¿
 }RcdSqList;
 
-void InsertSort( RcdSqList &L );
+void swap( int* a, int* b );
+void  BubbleSort( RcdSqList& L );
+void InsertSort( RcdSqList& L );
+//void ShellSort( RcdSqList& L );
+void ShellSort( RcdSqList& L, int d[], int t );
+void ShellInsert( RcdSqList& L, int dk );
+
+
 Status InitList( RcdSqList& L, RcdType rcd[], int length );
 void PrintList( RcdSqList& L );
-void  BubbleSort( );
 void PrintfTime( RcdSqList& L, void ( InsertSort )( RcdSqList &) );
 KeyType  SingleRandomNumberGeneration( );
 RcdType* RandomNumberGeneration( int length );
+
+void PrintfTimeForShellSort( RcdSqList& L, void ( Sort )( RcdSqList& L, int d[], int t ) );
+
 #endif 
