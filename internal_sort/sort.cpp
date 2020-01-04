@@ -1,6 +1,6 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 #include"SORT.h"
-//³õÊ¼»¯ÅÅĞòµÄ¼ÇÂ¼Ë³Ğò±í
+//åˆå§‹åŒ–æ’åºçš„è®°å½•é¡ºåºè¡¨
 Status InitList( RcdSqList& L,RcdType rcd[],int length ) {
 	L.rcd = (RcdType* )malloc( ( length +1) * sizeof( RcdType ) );
 	for (int i = 1; i <= length; i++)
@@ -21,7 +21,7 @@ void swap( int* a, int* b ) {
 }
 
 
-//Ã°ÅİÅÅĞò
+//å†’æ³¡æ’åº
 void  BubbleSort( RcdSqList& L ) {
 	char func_buf [50] = { 0 };
 	sprintf( func_buf, "%s", __FUNCTION__ );
@@ -31,19 +31,19 @@ void  BubbleSort( RcdSqList& L ) {
 	for (i = 1; i < L.length && flag; i++)
 	{
 		flag = 0;
-		for (j = L.length; j > i; j--)		//Ã°ÅİÒ»¶¨ÊÇ´ÓºóÍùÇ°±È½Ï
+		for (j = L.length; j > i; j--)		//å†’æ³¡ä¸€å®šæ˜¯ä»åå¾€å‰æ¯”è¾ƒ
 		{
 			if (L.rcd [j].key < L.rcd [j - 1].key)
 			{
 				swap( &L.rcd[j].key, &L.rcd [j-1].key );
-				flag = 1;						//Èç¹ûÃ»ÓĞ½»»»ËµÃ÷ÒÑ¾­ÅÅºÃĞòÁË
+				flag = 1;						//å¦‚æœæ²¡æœ‰äº¤æ¢è¯´æ˜å·²ç»æ’å¥½åºäº†
 			}
 		}
 	}
 
 }
 
-//Ö±½Ó²åÈëÅÅĞò
+//ç›´æ¥æ’å…¥æ’åº
 void InsertSort( RcdSqList& L ){
 	char func_buf [50] = { 0 };
 	sprintf( func_buf, "%s", __FUNCTION__ );
@@ -62,7 +62,7 @@ void InsertSort( RcdSqList& L ){
 	}
 }
 
-//Ò»ÌËÏ£¶ûÅÅĞò
+//ä¸€è¶Ÿå¸Œå°”æ’åº
 void ShellInsert( RcdSqList& L, int dk ) {
 	int i, j;
 	for(i=1;i==L.length-dk;++i)
@@ -79,7 +79,7 @@ void ShellInsert( RcdSqList& L, int dk ) {
 		}
 
 }
-//Ï£¶ûÅÅĞò
+//å¸Œå°”æ’åº
 void ShellSort( RcdSqList& L, int d[],int t) {
 	int k;
 	for (k = 0; k < t; k++) {
@@ -88,7 +88,7 @@ void ShellSort( RcdSqList& L, int d[],int t) {
 }
 
 
-//´òÓ¡Ë³Ğò±íÖĞµÄÖµ
+//æ‰“å°é¡ºåºè¡¨ä¸­çš„å€¼
 void PrintList( RcdSqList &L){
 	for (int  i = 1; i <= L.length; i++)
 	{
@@ -96,18 +96,18 @@ void PrintList( RcdSqList &L){
 	}
 	printf( "\n" );
 }
-//´òÓ¡ÅÅĞòº¯ÊıËùĞèµÄÊ±¼ä
+//æ‰“å°æ’åºå‡½æ•°æ‰€éœ€çš„æ—¶é—´
 void PrintfTime( RcdSqList& L,void ( Sort )( RcdSqList& ) ) {
 	time_t c_start, c_end ;
 
-	c_start = clock( );    //!< µ¥Î»Îªms
+	c_start = clock( );    //!< å•ä½ä¸ºms
 	
 	Sort( L );
 	PrintList( L );
 	//system( "pause" );
 	c_end = clock( );
  
-	//!<difftime£¨time_t, time_t£©·µ»ØÁ½¸ötime_t±äÁ¿¼äµÄÊ±¼ä¼ä¸ô£¬¼´Ê±¼ä²î
+	//!<difftimeï¼ˆtime_t, time_tï¼‰è¿”å›ä¸¤ä¸ªtime_tå˜é‡é—´çš„æ—¶é—´é—´éš”ï¼Œå³æ—¶é—´å·®
 	printf( "The sort used %f ms by clock()\n", difftime( c_end, c_start ) );
 	//system( "pause" );
 
@@ -117,29 +117,29 @@ void PrintfTimeForShellSort( RcdSqList& L, void ( Sort )( RcdSqList& L, int d[],
 	time_t c_start, c_end;
 	const int t = 3;
 	int d [t] = { 5,3,1 };
-	c_start = clock( );    //!< µ¥Î»Îªms
+	c_start = clock( );    //!< å•ä½ä¸ºms
 
 	ShellSort( L,d,t );
 	PrintList( L );
 	//system( "pause" );
 	c_end = clock( );
 
-	//!<difftime£¨time_t, time_t£©·µ»ØÁ½¸ötime_t±äÁ¿¼äµÄÊ±¼ä¼ä¸ô£¬¼´Ê±¼ä²î
+	//!<difftimeï¼ˆtime_t, time_tï¼‰è¿”å›ä¸¤ä¸ªtime_tå˜é‡é—´çš„æ—¶é—´é—´éš”ï¼Œå³æ—¶é—´å·®
 	printf( "The sort used %f ms by clock()\n", difftime( c_end, c_start ) );
 }
 
-//µ¥¸öËæ»úÊıÉú³É
+//å•ä¸ªéšæœºæ•°ç”Ÿæˆ
 KeyType SingleRandomNumberGeneration( )
 {
 	int a;
-	     srand( (unsigned )clock(  )*100000 );  //¶ÁÈ¡ÏµÍ³Ê±¼ä£¬²úÉúÒ»¸öÖÖ×ÓÊıÖµ
+	     srand( (unsigned )clock(  )*100000 );  //è¯»å–ç³»ç»Ÿæ—¶é—´ï¼Œäº§ç”Ÿä¸€ä¸ªç§å­æ•°å€¼
 	     a = rand( );
 	     //printf( "%d\n", a );
 
 	return a;
 }
 
-//Ëæ»úÊı¹¹³ÉµÄË³Ğò±íÖĞµÄ´æ´¢¿Õ¼äÄÚÈİ
+//éšæœºæ•°æ„æˆçš„é¡ºåºè¡¨ä¸­çš„å­˜å‚¨ç©ºé—´å†…å®¹
 RcdType* RandomNumberGeneration( int length ) {
 	if (length <= 0)
 		return NULL;
