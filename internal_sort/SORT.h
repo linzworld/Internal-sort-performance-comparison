@@ -1,4 +1,4 @@
-#include<stdio.h>         
+ï»¿#include<stdio.h>         
 #include<stdlib.h>
 #include<time.h>  
 #ifndef SORT_H
@@ -15,9 +15,9 @@ typedef struct {
 }RecordType,RcdType;
 
 typedef struct {
-	RcdType* rcd;//´æ´¢¿Õ¼ä»ùÖ·
-	int length;//µ±Ç°³¤¶È,0ÎªÏĞÖÃÎ»
-	int size;//µ±Ç°ÈİÁ¿
+	RcdType* rcd;//å­˜å‚¨ç©ºé—´åŸºå€
+	int length;//å½“å‰é•¿åº¦,0ä¸ºé—²ç½®ä½
+	int size;//å½“å‰å®¹é‡
 }RcdSqList;
 
 void swap( int* a, int* b );

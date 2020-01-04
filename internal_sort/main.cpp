@@ -1,10 +1,10 @@
-#define _CRT_SECURE_NO_WARNINGS
+Ôªø#define _CRT_SECURE_NO_WARNINGS
 #include"SORT.h"
 
 int main( ) {
 	RcdSqList L;
 	const int length = 10;
-	RcdType rcd[length+1] = { 0,9,3,2,7,4,8,6,5,0,1};//µ⁄“ª∏ˆŒª÷√œ–÷√
+	RcdType rcd[length+1] = { 0,9,3,2,7,4,8,6,5,0,1};//Á¨¨‰∏Ä‰∏™‰ΩçÁΩÆÈó≤ÁΩÆ
 	//RcdType* rcd = RandomNumberGeneration( length+1 );
 	InitList( L, rcd, length );
 	PrintList( L );
