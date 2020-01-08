@@ -43,7 +43,8 @@ void ShellInsert( RcdSqList& L, int dk );
 void ShellSort(RcdSqList& L, int d[], int t);
 void QuickSort(RcdSqList& L, int low, int high);
 
-
+void HeapSort(RcdSqList& L);
+void MaxHeapify(RcdType rcd[], int start, int end);
 
 
 

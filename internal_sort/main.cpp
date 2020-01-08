@@ -4,18 +4,23 @@
 
 int delay_time = 0;//延时时间的设置
 int compare_number ;//比较次数
- int move_number ;//移动次数
+int move_number ;//移动次数
+const int length = 30;
+RcdSqList L;
+RcdType* rcd = RandomNumberGeneration(length + 1);
 
- RcdSqList L;
-
- void TestSort( RcdType rcd[], int length, void (Sort)(RcdSqList&) ) {
+void TestSort( void (Sort)(RcdSqList&) ) {
 	 InitList(L, rcd, length);
 	 PrintList(L);
-	 PrintfTime(L, BubbleSort);
+	 PrintfTime(L, Sort);
 
 	 printf("\t移动次数m:%d\n", move_number);
 	 printf("\t比较次数c:%d\n\n", compare_number);
  }
+
+void TestQuickSort() {
+	
+}
 
 void test1() {
 	RcdSqList L;
@@ -34,14 +39,12 @@ void test1() {
 
 
 	const int d_length = 3;
-	int d[d_length] = { 5,3,1};
+	int d[d_length] = { 5,3,1 };
 	InitList(L, rcd, length);
 	PrintList(L);
 	PrintfTimeForShellSort(L, d, d_length);
 	PrintList(L);
 }
-
-
 //由随机数组成的调用内部排序的主函数
 void test2() {
 	printf("\n");
@@ -49,20 +52,14 @@ void test2() {
 	printf("\n");
 
 
-	RcdSqList L ;
-	const int length = 30;
-	RcdType* rcd = RandomNumberGeneration(length + 1);
+	//const int length = 30;
+	//RcdType* rcd = RandomNumberGeneration(length + 1);
 
-	TestSort(rcd, length, BubbleSort);
-	TestSort(rcd, length, InsertSort);
-	TestSort(rcd, length, SimpleSort);
-
-	InitList(L, rcd, length);
-	PrintList(L);
-	FormattingPrint((char*)"QuickSort");
-	PrintfTimeForQuickSort(L, 0,L.length);
-	printf("\t移动次数m:%d\n", move_number);
-	printf("\t比较次数c:%d\n", compare_number);
+	TestSort(  BubbleSort);
+	TestSort(  InsertSort);
+	TestSort(  SimpleSort);
+	FormattingPrint((char*)"HeapSort");
+	TestSort(  HeapSort );
 
 
 	const int d_length = 3;
@@ -73,6 +70,15 @@ void test2() {
 
 	printf("\t移动次数m:%d\n", move_number);
 	printf("\t比较次数c:%d\n", compare_number);
+
+	InitList(L, rcd, length);
+	PrintList(L);
+	FormattingPrint((char*)"QuickSort");
+	PrintfTimeForQuickSort(L, 0, L.length);
+	printf("\t移动次数m:%d\n", move_number);
+	printf("\t比较次数c:%d\n", compare_number);
+
+
 }
 int main( ) {
 	system("color 0A");
