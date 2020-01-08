@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{5718CC07-85F0-4911-B25A-D985825BA9ED}</ProjectGuid>
-    <RootNamespace>internalsort</RootNamespace>
+    <ProjectGuid>{0FC54985-99F0-405B-A547-167A0EFF8325}</ProjectGuid>
+    <RootNamespace>singlelinkedlist</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -123,12 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="sort.cpp" />
-    <ClCompile Include="util.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="SORT.h" />
+    <ClCompile Include="single-linked-list.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

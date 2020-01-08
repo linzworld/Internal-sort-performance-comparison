@@ -1,15 +1,30 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 #include"SORT.h"
+
+
+extern int compare_number;//比较次数
+extern int move_number;//移动次数
+
 //初始化排序的记录顺序表
 Status InitList( RcdSqList& L,RcdType rcd[],int length ) {
-	L.rcd = (RcdType* )malloc( ( length +1) * sizeof( RcdType ) );
-	for (int i = 1; i <= length; i++)
+	if (length <= 0)
+		return FALSE;
+	L.rcd = (RcdType*)malloc(((unsigned long long)length + 1) * sizeof(RcdType));
+
+	int i;
+	// 消除C6086警告
+	if (L.rcd == NULL)
 	{
-		L.rcd [i] = rcd [i];
+		return OVERFLOW;
+	}
+	for (i = 1; i <= length; i++)
+	{
+		L.rcd[i] = rcd[i];
 		L.length = length;
 		L.size = init_size;
 	}
 	return OK;
+	
 }
 
 
@@ -20,12 +35,11 @@ void swap( int* a, int* b ) {
 	*b = ret;
 }
 
-
 //冒泡排序
 void  BubbleSort( RcdSqList& L ) {
-	char func_buf [50] = { 0 };
-	sprintf( func_buf, "%s", __FUNCTION__ );
-	printf( "======%s \n", func_buf );
+	FormattingPrint((char*)__func__);
+	compare_number = 0;//比较次数 
+	move_number = 0;//移动次数 
 	int i, j;
 	int flag = 1;
 	for (i = 1; i < L.length && flag; i++)
@@ -36,8 +50,10 @@ void  BubbleSort( RcdSqList& L ) {
 			if (L.rcd [j].key < L.rcd [j - 1].key)
 			{
 				swap( &L.rcd[j].key, &L.rcd [j-1].key );
+				move_number++;
 				flag = 1;						//如果没有交换说明已经排好序了
 			}
+			compare_number++;
 		}
 	}
 
@@ -45,111 +61,114 @@ void  BubbleSort( RcdSqList& L ) {
 
 //直接插入排序
 void InsertSort( RcdSqList& L ){
-	char func_buf [50] = { 0 };
-	sprintf( func_buf, "%s", __FUNCTION__ );
-	printf( "======%s \n", func_buf );
+	FormattingPrint((char*)__func__);
+	compare_number = 0;//比较次数 
+	move_number = 0;//移动次数 
 	int i, j;
 	for (i = 1; i < L.length; ++i) {
 		if (L.rcd[i+1].key < L.rcd[i].key) { 
 			L.rcd [0] = L.rcd [i + 1];
+			move_number++;
 			j = i + 1;
 			do {
 				j--;
 				L.rcd [j + 1] = L.rcd [j];
+				move_number++;
 			} while (L.rcd[0].key<L.rcd[j-1].key);
 			L.rcd [j] = L.rcd [0];
+			move_number++;
 		}
+		compare_number++;
 	}
 }
 
-//一趟希尔排序
-void ShellInsert( RcdSqList& L, int dk ) {
-	int i, j;
-	for(i=1;i==L.length-dk;++i)
-		if (L.rcd[i+dk].key<L.rcd[i].key)
-		{
-			L.rcd [0] = L.rcd [i + dk];
-			j = i + dk;
-			do
-			{
-				j -= dk;
-				L.rcd [j + dk] = L.rcd [j];
-			} while (j-dk>0&&L.rcd[0].key<L.rcd[j-dk].key);
-			L.rcd [j] = L.rcd [0];
+//简单选择排序
+void SimpleSort( RcdSqList& L ) {
+	FormattingPrint((char*)__func__);
+	compare_number = 0;//比较次数 
+	move_number = 0;//移动次数 
+	for (int i = 0; i < L.length - 1; i++) {
+		int min = i;
+		for (int j = i + 1; j < L.length; j++) {
+			if (L.rcd[min].key > L.rcd[j].key) {//找到最小值得下标
+				min = j;
+				move_number++;
+			}
+			compare_number++;
+
+		}
+		if (min != i) {//交换最小数L.rcd[min].key和第i位数的位置
+			swap(&L.rcd[min].key, &L.rcd[i].key);
+			move_number++;
+
 		}
 
-}
-//希尔排序
-void ShellSort( RcdSqList& L, int d[],int t) {
-	int k;
-	for (k = 0; k < t; k++) {
-		ShellInsert( L, d [k] );
 	}
+
 }
 
-
-//打印顺序表中的值
-void PrintList( RcdSqList &L){
-	for (int  i = 1; i <= L.length; i++)
-	{
-		printf( "%d ",L.rcd[i].key );
+//用来递归操作的快速排序
+int Partition(RcdSqList& L, int low, int high) {
+	L.rcd[0] = L.rcd[low];
+	while (low < high) {
+		while (low < high && L.rcd[0].key <= L.rcd[high].key) --high;
+		compare_number++;
+		L.rcd[low].key = L.rcd[high].key;
+		move_number++;
+		while (low < high && L.rcd[low].key <= L.rcd[0].key) ++low;
+		compare_number++;
+		L.rcd[high].key = L.rcd[low].key;
+		move_number++;
 	}
-	printf( "\n" );
-}
-//打印排序函数所需的时间
-void PrintfTime( RcdSqList& L,void ( Sort )( RcdSqList& ) ) {
-	time_t c_start, c_end ;
+	compare_number++;
+	L.rcd[low].key = L.rcd[0].key;
+	move_number++;
+	return low;
+} 
 
-	c_start = clock( );    //!< 单位为ms
+// 对顺序表L中的子序列L.rcd[low..high]进行快速排序
+void QuickSort(RcdSqList& L, int low, int high) {
 	
-	Sort( L );
-	PrintList( L );
-	//system( "pause" );
-	c_end = clock( );
- 
-	//!<difftime（time_t, time_t）返回两个time_t变量间的时间间隔，即时间差
-	printf( "The sort used %f ms by clock()\n", difftime( c_end, c_start ) );
-	//system( "pause" );
-
-}
-
-void PrintfTimeForShellSort( RcdSqList& L, void ( Sort )( RcdSqList& L, int d[], int t ) ) {
-	time_t c_start, c_end;
-	const int t = 3;
-	int d [t] = { 5,3,1 };
-	c_start = clock( );    //!< 单位为ms
-
-	ShellSort( L,d,t );
-	PrintList( L );
-	//system( "pause" );
-	c_end = clock( );
-
-	//!<difftime（time_t, time_t）返回两个time_t变量间的时间间隔，即时间差
-	printf( "The sort used %f ms by clock()\n", difftime( c_end, c_start ) );
-}
-
-//单个随机数生成
-KeyType SingleRandomNumberGeneration( )
-{
-	int a;
-	     srand( (unsigned )clock(  )*100000 );  //读取系统时间，产生一个种子数值
-	     a = rand( );
-	     //printf( "%d\n", a );
-
-	return a;
-}
-
-//随机数构成的顺序表中的存储空间内容
-RcdType* RandomNumberGeneration( int length ) {
-	if (length <= 0)
-		return NULL;
-	RcdType *rcd = (RcdType*)malloc( (length+1)*sizeof(RcdType) ); 
-	rcd [0].key = 0;
-	for (int i = 1; i <= length; i++)
-	{
-		rcd [i].key = SingleRandomNumberGeneration();
+	int pivotloc;
+	if (low < high) {
+		pivotloc = Partition(L, low, high);
+		QuickSort(L, low, pivotloc - 1);
+		QuickSort(L, pivotloc + 1, high);
 	}
-	return rcd;
+} 
+
+
+//希尔排序
+void ShellSort(RcdSqList& L, int dlta[], int t) {
+	//按增量序列dlta[0..t-1]对顺序表L作希尔排序。
+
+	FormattingPrint((char*)__func__);
+	compare_number = 0;//比较次数 
+	move_number = 0;//移动次数 
+	for (int k = 0; k < t; ++k)
+		ShellInsert(L, dlta[k]); //一趟增量为dlta[k]的插入排序
 }
+//一趟希尔排序
+void ShellInsert(RcdSqList& L, int dk) {
+	//对顺序表L作一趟希尔插入排序。
+	for (int i = dk + 1; i <= L.length; ++i)
+		if (L.rcd[i].key < L.rcd[i - dk].key) {//需将L.rcd[i]插入有序增量子表
+			L.rcd[0] = L.rcd[i];//暂存在L.rcd[0]
+			move_number++;
+			int j;
+			for ( j = i - dk; j > 0 && (L.rcd[0].key < L.rcd[j].key); j -= dk)
+			{
+				L.rcd[j + dk] = L.rcd[j]; //记录后移，查找插入位置
+				move_number++;
+				compare_number++;
+			}
+			L.rcd[j + dk] = L.rcd[0];//插入
+			move_number++;
+			compare_number++;
+		}
+	compare_number++;
+}
+
+
 
 
