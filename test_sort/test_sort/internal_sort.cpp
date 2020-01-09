@@ -1,3 +1,12 @@
+/*************************************************
+File name: internal_sort.cpp
+Author: 林泽鸿
+Version: 1.0
+Date: 2020-01-09
+Description:该程序用于通过随机数据比较各算法的关键字
+			比较次数和关键字移动次数，用图表的形式，
+			以取得直观感受（完全自己开发完成）
+*************************************************/
 #include<iostream>
 #include<algorithm>
 #include <windows.h>
@@ -22,7 +31,7 @@ int arr[Max] = { 0 }, b[Max];//随机数的数组
 long long int 
 	compare_number[NUMBER] = { 0 }, //比较
 	swap_number[NUMBER] = { 0 },
-	move_number[NUMBER] = { 0 };
+	move_number[NUMBER] = { 0 }; 
 typedef struct {
 	long long int num;//在数组中的下标
 	long long int sort_time;//该排序算法需要花费的时间（单位：ms）
@@ -54,15 +63,6 @@ int* numArr;
 Group InitGroup( ) {
 	//外层的结构体数组先申请内存空间
 	g.result = (Result*)malloc(group_num *sizeof(Result));
-	//for (int i = 0; i < group_num; i++) {
-	//	g.result[i].num = (long long int*)malloc(sizeof(long long int) * NUMBER);
-	//	g.result[i].sort_time = (long long int*)malloc(sizeof(long long int) * NUMBER);
-	//	g.result[i].compare_number = (long long int*)malloc(sizeof(long long int) * NUMBER);
-	//	g.result[i].swap_number = (long long int*)malloc(sizeof(long long int) * NUMBER);
-	//	g.result[i].move_number = (long long int*)malloc(sizeof(long long int) * NUMBER);
-	//	g.result[i].ranking = (int*)malloc(sizeof(int) * NUMBER);
-
-	//}
 	g.group_count = group_num;
 	return g;
 }
@@ -516,7 +516,7 @@ void OneSortMenu() {
 	
 	system("cls");
 	printf("\t\|                                                   \|\n");
-	printf("\t\|  请你输入待排序数列的数字元素的个数 n(按0退出)（数字越大，时间越长，大于十万数字请耐心等待）：");
+	printf("\t\|  请你输入待排序数列的数字元素的个数 n(按0返回主菜单)（数字越大，时间越长，请耐心等待）：");
 	num = NumberJudge();
 	if (num == 0) {
 		printf("退出排序程序\n");
@@ -528,7 +528,7 @@ void OneSortMenu() {
 	{
 		system("cls");
 		printf("\t\|                                                   \|\n");
-		printf("\t\|  请你输入待排序数列的数字元素的个数 n(按0退出)（数字越大，时间越长，大于十万数字请耐心等待）：");
+		printf("\t\|  请你输入待排序数列的数字元素的个数 n(按0返回主菜单)（数字越大，时间越长，数字大于十万请耐心等待）：");
 		num = NumberJudge();
 		if (num == 0) {
 			printf("退出排序程序\n");
@@ -537,7 +537,7 @@ void OneSortMenu() {
 		OneRunSort(num);
 		system("pause");
 	}
-	printf("退出排序\n");
+	printf("\t返回主菜单页面\n");
 }
 
 //显示多组的排序算法结果的菜单
@@ -545,63 +545,85 @@ void GroupSortMenu() {
 	int num =0;//数字元素的个数
 	system("cls");
 	printf("\t\|                                                   \|\n");
-	printf("\t\|  请你输入分组的个数 n(按0退出)");
+	printf("\t\|  请你输入分组的个数 n(按0返回主菜单)");
 	group_num = NumberJudge();
 	if (group_num == 0) {
-		printf("退出排序程序\n");
 		return;
 	}
-	InitGroup();
-	numArr = (int*)malloc(group_num*sizeof(int));
-	if (numArr == NULL) {
-		printf("内存溢出！\n");
-		return;
-	}
-
-	printf("\t\|  请你依次输入待排序数列的数字元素的个数 e(按0退出)\n");
-	for (int i= 0; i < group_num; i++)
+	while (group_num!=0)
 	{
-		printf("\t\|  输入第%d个元素\t",i+1);
-		numArr[i] = NumberJudge();
-	}
-	
-	StorageSortResult();
 
-	printf("\n\t\|下面显示多组排序的结果\n");
-	PrintGroupSortResult();
-	free(numArr);
-	printf("退出排序\n");
+		InitGroup();
+		numArr = (int*)malloc(group_num * sizeof(int));
+		if (numArr == NULL) {
+			printf("内存溢出！\n");
+			return;
+		}
+
+		printf("\t\|  请你依次输入待排序数列的数字元素的个数 e(按0返回主菜单)\n");
+		for (int i = 0; i < group_num; i++)
+		{
+			printf("\t\|  输入第%d个元素\t", i + 1);
+			numArr[i] = NumberJudge();
+		}
+
+		StorageSortResult();
+
+		printf("\n\t\|下面显示多组排序的结果\n");
+		PrintGroupSortResult();
+
+		free(numArr);
+		system("cls");
+		printf("\t\|                                                   \|\n");
+		printf("\t\|  请你输入分组的个数 n(按0返回主菜单)");
+		group_num = NumberJudge();
+		if (group_num == 0) {
+			return;
+		}
+
+	}
+
 }
 
 //打印主功能界面
 void MainMenu() {
-	printf("");
-	printf("");
-	printf("");
-	printf("");
-	printf("");
-	printf("");
-	printf("");
-	printf("");
-	cout << "\t ----------------------------------------------------" << endl;
-	cout << "\t\|            六种内部排序算法的性能比较             \|" << endl;
-	cout << "\t----------------------------------------------------" << endl;
-	cout << "\t\|                                                   \|" << endl;
-	cout << "\t\|  1-生成目标列表比较各种排序算法的性能             \|" << endl;
-	cout << "\t\|  0-退出系统                                       \|" << endl;
-	cout << "\t\|                                                   \|" << endl;
-	cout << "\t ----------------------------------------------------" << endl;
-	cout << "\t\|                                                   \|" << endl;
-	printf("MainMenu\n");
-	printf("");
+	printf("\t ----------------------------------------------------\n");
+	printf("\t\|            六种内部排序算法的性能比较             \|\n");
+	printf("\t----------------------------------------------------\n");
+	printf("\t\|                                                   \|\n");
+	printf("\t\|  1-生成一组目标列表比较各种排序算法的性能         \|\n");
+	printf("\t\|  2-生成多组随机数据比较各种排序算法的性能         \|\n");
+	printf("\t\|  0-退出该系统                                     \|\n");
+	printf("\t\|                                                   \|\n");
+	printf("\t\|                                                   \|\n");
+	printf("\t ----------------------------------------------------\n");
+	printf("\t请输入你要选择的序号：");
 }
 int main() {
-	system("color 0A");
+	//system("color 1A");
+	int  op = 0;
 	group_num = 1;//重新变为1，只有一个分组的情况
-
-	GroupSortMenu();
-	//OneSortMenu();
-
+	MainMenu();
+	op = NumberJudge();
+	while (op)
+	{
+		switch (op)
+		{
+			
+			case 1:
+				OneSortMenu();
+				break;
+			case 2:
+				GroupSortMenu();
+				break;
+			default:
+				printf("非法输入,请重新输入！\n");
+				break;
+		}
+		system("cls");
+		MainMenu();
+		op = NumberJudge();
+	}
 	return 0;
 }
 
