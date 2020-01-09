@@ -4,21 +4,68 @@
 #include <cstdio>
 #include <malloc.h>
 #include <time.h>
+#include <stdlib.h>
+
 using namespace std;
 #define TRUE 1
 #define FALSE 0
+#define Zero_InsertSort 0
+#define One_ShellSort 1
+#define Two_SelectSort 2
+#define Three_QuickSort 3
+#define Four_MegerSort 4
+#define Five_BubbleSort 5
 const int NUMBER = 6; //进行排序的算法个数
 const int Max = 1000000;
-int arr[Max] = { 0 }, b[Max];
+const int GroupMaxCount = 10;//分组排序的最大组数
+int arr[Max] = { 0 }, b[Max];//随机数的数组
 long long int 
 	compare_number[NUMBER] = { 0 }, //比较
 	swap_number[NUMBER] = { 0 },
 	move_number[NUMBER] = { 0 };
 typedef struct {
-	long long int num;
-	long long int sort_time;
+	long long int num;//在数组中的下标
+	long long int sort_time;//该排序算法需要花费的时间（单位：ms）
 	int ranking;//排序算法的所用时间的多少顺序
-} Time;
+} Time;//用来存储比较信息的结构体
+
+typedef struct {
+	long long int num[NUMBER];//在数组中的下标
+	long long int sort_time[NUMBER];//该排序算法需要花费的时间（单位：ms）
+	long long int compare_number[NUMBER];
+	long long int swap_number[NUMBER];
+	long long int move_number[NUMBER];
+	int ranking[NUMBER];//排序算法的所用时间的多少顺序
+} Result;//用来存储比较信息的结构体
+
+typedef struct {
+	Result * result;//结果数组
+	int group_count;//分组数
+} Group;//用来存储分组比较信息
+int group_num = 1;//分组的数量
+
+Time t[NUMBER];
+long long int total_sort_time = 0, total_START = 0, START = 0, total_END = 0, END = 0;
+
+Group g;
+int* numArr;
+
+//初始化分组的函数
+Group InitGroup( ) {
+	//外层的结构体数组先申请内存空间
+	g.result = (Result*)malloc(group_num *sizeof(Result));
+	//for (int i = 0; i < group_num; i++) {
+	//	g.result[i].num = (long long int*)malloc(sizeof(long long int) * NUMBER);
+	//	g.result[i].sort_time = (long long int*)malloc(sizeof(long long int) * NUMBER);
+	//	g.result[i].compare_number = (long long int*)malloc(sizeof(long long int) * NUMBER);
+	//	g.result[i].swap_number = (long long int*)malloc(sizeof(long long int) * NUMBER);
+	//	g.result[i].move_number = (long long int*)malloc(sizeof(long long int) * NUMBER);
+	//	g.result[i].ranking = (int*)malloc(sizeof(int) * NUMBER);
+
+	//}
+	g.group_count = group_num;
+	return g;
+}
 
 int CompareWithSortTime(const Time& a, const Time& b) {
 	return a.sort_time < b.sort_time;
@@ -49,25 +96,27 @@ void Restore(int num) {
 	}
 }
 //插入排序
-void InsertSort(int R[], int n) { // 待排数据存在R[]中,默认为整型,个数为n
-	int i = 0, j = 0, temp = 0;
-	for (i = 2; i <= n; i++) { /*  数组从下标1开始存储,第一个元素有序,所以从第二个元素开始处理  */
-		if (R[i] < R[i - 1]) {
+void InsertSort(int arr[], int n) { // 待排数据存在arr[]中,默认为整型,个数为n
+
+	int i, j;
+	for (i = 1; i < n; i++)//循环从第2个元素开始
+	{
+		move_number[0]++;
+		if (arr[i] < arr[i - 1])
+		{
 			compare_number[0]++;
-			move_number[0]++;
-			temp = R[i];   // 将待插入元素暂时存于temp中
-			j = i - 1;
-			while (temp < R[j] && j >= 1) { // 下面的循环完成寻找插入位置的功能
-				compare_number[0]++;
+			int temp = arr[i];
+			for (j = i - 1; j >= 0 && arr[j] > temp; j--)
+			{
+				arr[j + 1] = arr[j];
 				move_number[0]++;
-				R[j + 1] = R[j];
 				swap_number[0]++;
-				j--;
 			}
+			//将a[i]放到正确位置上
+			arr[j + 1] = temp;
 		}
-		R[j + 1] = temp;
-		// 找到插入位置后将temp中暂存的待插入元素插入
 	}
+
 }
 //希尔排序
 void ShellSort(int arr[], int len) {
@@ -92,15 +141,16 @@ void ShellSort(int arr[], int len) {
 void SelectSort(int R[], int n) {
 	int i, j, k;
 	int  temp;
-	for (i = 0; i <= n - 1; ++i) {
+	for (i = 0; i < n ; ++i) {
 		k = i;
-		for (j = i + 1; j <= n; ++j)  /*这个循环是算法的关键，它从无序序列中挑出一个最小的元素*/
+		for (j = i + 1; j < n; ++j)  /*这个循环是算法的关键，它从无序序列中挑出一个最小的元素*/
 			if (R[k] > R[j]) {
 				move_number[2]++;
 				swap_number[2]++;
 				compare_number[2]++;
 				k = j;
-			}  //每两个数比较时总是把小的挑出来，并且将其放入下一轮比较数据中
+			}  
+		//每两个数比较时总是把小的挑出来，并且将其放入下一轮比较数据中
 		/*下面的3句完成最小元素与无序序列第一个元素的交换*/
 		swap_number[2]++;
 		compare_number[2]++;
@@ -144,14 +194,14 @@ int Partition(int arr[], int low, int high) {
 	return low;
 }
 //快速排序
-void QuickSort(int arr[], int start, int end) {
+void QuickSort(int arr[], int START, int END) {
 	int pos;
-	if (start < end) {
+	if (START < END) {
 		compare_number[3]++;
 		swap_number[3]++;
-		pos = Partition(arr, start, end);
-		QuickSort(arr, start, pos - 1);
-		QuickSort(arr, pos + 1, end);
+		pos = Partition(arr, START, END);
+		QuickSort(arr, START, pos - 1);
+		QuickSort(arr, pos + 1, END);
 	}
 	return;
 }
@@ -210,12 +260,12 @@ void MegerSort(int arr[], int low, int high, int len) {
 }
 
 //冒泡排序
-void  BubbleSort(int arr[], int n) {
+void  BubbleSort(int* arr, int n) {
 
 	int i, j;
 	int flag = 1;
 	int  temp;
-	for (i = 1; i < n  && flag; i++)
+	for (i = 0; i < n  && flag; i++)
 	{
 		flag = 0;
 		for (j = n; j > i; j--)		//冒泡一定是从后往前比较
@@ -238,60 +288,152 @@ void  BubbleSort(int arr[], int n) {
 
 }
 
-//进行排序
-void RunSort(int num) {
+//测试直接插入排序，希尔排序，选择排序，冒泡排序
+void TestMostSort(int sort_num,int* num,void (Sort)(int* , int ) ) {
+	total_START = START = GetTickCount64();
+	Init(*num);//初始化数组
+
+	Sort( arr, *num);
+
+
+	END = GetTickCount64();
+	t[sort_num].sort_time = END - START;
+	t[sort_num].num = sort_num;
+}
+
+//测试快速排序
+void TestQuickSort( int* num ) {
+	total_START = START = GetTickCount64();
+	Init(*num);//初始化数组
+	QuickSort(arr, 0,*num);
+	END = GetTickCount64();
+	t[Three_QuickSort].sort_time = END - START;
+	t[Three_QuickSort].num = Three_QuickSort;
+}
+
+
+//测试归并排序
+void TestMegerSort(int* num) {
+	total_START = START = GetTickCount64();
+	Init(*num);//初始化数组
+	MegerSort(arr, 0, *num - 1, *num);
+	END = GetTickCount64();
+	t[Three_QuickSort].sort_time = END - START;
+	t[Three_QuickSort].num = Three_QuickSort;
+}
+
+//通过一个随机数的排序结果
+void PrintOneSortResult() {
+	printf("\t\|  总共用时为：%I64d毫秒\n", total_sort_time);
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t\|          -----        六种内部排序算法性能比较结果如下            ------       \|\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t\| 排 序 方 法\| 比较的次数 \| 交换的次数 \| 移动的次数 \|时间（ms）\|时间排名\|时间复杂度\|\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+
+	printf("\t\|直接插入排序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|    n*n   \|\n", g.result[0].compare_number[0], g.result[0].swap_number[0], g.result[0].move_number[0], g.result[0].sort_time[0], g.result[0].ranking[0]);
+	printf("\t ----------------------------------------------------------------------------------\n");
+
+	printf("\t\| 希 尔 排 序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", g.result[0].compare_number[1], g.result[0].swap_number[1], g.result[0].move_number[1], g.result[0].sort_time[1], g.result[0].ranking[1]);
+	printf("\t ----------------------------------------------------------------------------------\n");
+
+	printf("\t\|简单选择排序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|    n*n   \|\n", g.result[0].compare_number[2], g.result[0].swap_number[2], g.result[0].move_number[2], g.result[0].sort_time[2], g.result[0].ranking[2]);
+	printf("\t ----------------------------------------------------------------------------------\n");
+
+	printf("\t\| 快 速 排 序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", g.result[0].compare_number[3], g.result[0].swap_number[3], g.result[0].move_number[3], g.result[0].sort_time[3], g.result[0].ranking[3]);
+	printf("\t ----------------------------------------------------------------------------------\n");
+
+	printf("\t\| 归 并 排 序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", g.result[0].compare_number[4], g.result[0].swap_number[4], g.result[0].move_number[4], g.result[0].sort_time[4], g.result[0].ranking[4]);
+	printf("\t ----------------------------------------------------------------------------------\n");
+
+	printf("\t\| 冒 泡 排 序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|    n*n   \|\n", g.result[0].compare_number[5], g.result[0].swap_number[5], g.result[0].move_number[5], g.result[0].sort_time[5], g.result[0].ranking[5]);
+	printf("\t ----------------------------------------------------------------------------------\n");
+}
+//分组通过随机数的排序结果
+void PrintGroupSortResult() {
+	printf("\t\|  总共用时为：%I64d毫秒\n", total_sort_time);
+	int i = 0;
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t\|        -----  多种输入数的情况下，六种内部排序算法的性能结果如下  ------       \|\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t ------------------------------直接插入排序----------------------------------------\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t\| 排序总耗时\| 比较的次数 \| 交换的次数 \| 移动的次数 \|时间（ms）\|时间排名\|时间复杂度\|\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	for ( i = 0; i < group_num; i++)
+	{
+		printf("\t\| 第  %d  组 \|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|    n*n   \|\n",i+1, g.result[i].compare_number[0], g.result[i].swap_number[0], g.result[i].move_number[0], g.result[i].sort_time[0], g.result[i].ranking[0]);
+		printf("\t ----------------------------------------------------------------------------------\n");
+
+	}
+
+
+	printf("\t ---------------------------------希尔排序-------------------------------------------\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t\| 排序总耗时\| 比较的次数 \| 交换的次数 \| 移动的次数 \|时间（ms）\|时间排名\|时间复杂度\|\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	for (i = 0; i < group_num; i++)
+	{
+		printf("\t\| 第  %d  组 \|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", i + 1, g.result[i].compare_number[1], g.result[i].swap_number[1], g.result[i].move_number[1], g.result[i].sort_time[1], g.result[i].ranking[1]);
+		printf("\t ----------------------------------------------------------------------------------\n");
+
+	}
+
+	printf("\t -------------------------------简单选择排序-----------------------------------------\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t\| 排序总耗时\| 比较的次数 \| 交换的次数 \| 移动的次数 \|时间（ms）\|时间排名\|时间复杂度\|\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	for (i = 0; i < group_num; i++)
+	{
+		printf("\t\| 第  %d  组 \|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", i + 1, g.result[i].compare_number[2], g.result[i].swap_number[2], g.result[i].move_number[2], g.result[i].sort_time[2], g.result[i].ranking[2]);
+		printf("\t ----------------------------------------------------------------------------------\n");
+
+	}
+
+
+	printf("\t -------------------------------快 速 排 序-----------------------------------------\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t\| 排序总耗时\| 比较的次数 \| 交换的次数 \| 移动的次数 \|时间（ms）\|时间排名\|时间复杂度\|\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	for (i = 0; i < group_num; i++)
+	{
+		printf("\t\| 第  %d  组 \|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", i + 1, g.result[i].compare_number[3], g.result[i].swap_number[3], g.result[i].move_number[3], g.result[i].sort_time[3], g.result[i].ranking[3]);
+		printf("\t ----------------------------------------------------------------------------------\n");
+
+	}
+
+	printf("\t -------------------------------归 并 排 序-----------------------------------------\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t\| 排序总耗时\| 比较的次数 \| 交换的次数 \| 移动的次数 \|时间（ms）\|时间排名\|时间复杂度\|\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	for (i = 0; i < group_num; i++)
+	{
+		printf("\t\| 第  %d  组 \|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", i + 1, g.result[i].compare_number[4], g.result[i].swap_number[4], g.result[i].move_number[4], g.result[i].sort_time[4], g.result[i].ranking[4]);
+		printf("\t ----------------------------------------------------------------------------------\n");
+
+	}
+
+	printf("\t -------------------------------冒 泡 排 序-----------------------------------------\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	printf("\t\| 排序总耗时\| 比较的次数 \| 交换的次数 \| 移动的次数 \|时间（ms）\|时间排名\|时间复杂度\|\n");
+	printf("\t ----------------------------------------------------------------------------------\n");
+	for (i = 0; i < group_num; i++)
+	{
+		printf("\t\| 第  %d  组 \|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", i + 1, g.result[i].compare_number[5], g.result[i].swap_number[5], g.result[i].move_number[5], g.result[i].sort_time[5], g.result[i].ranking[5]);
+		printf("\t ----------------------------------------------------------------------------------\n");
+
+	}
+	system("pause");
+}
+//计算一次排序的结果
+void CalculateSortResult(int num) {
 	int i;
-	Time t[NUMBER];
-	long long int total_sort_time  = 0, total_start = 0, start = 0, total_end = 0, end = 0;
-
-	printf("\t\|                                                   \|\n");
-	printf("\t ----------------------------------------------------\n");
-	printf("\t\|  请稍等......                                     \|\n");
-
-	printf("\t\|                                                   \|\n");
-
-	total_start = start = GetTickCount64();
-	Init(num);//初始化数组
-	InsertSort(arr, num);
-	end = GetTickCount64();
-	t[0].sort_time = end - start;
-	t[0].num = 0;
-
-	Restore(num);
-	start = GetTickCount64();
-	ShellSort(arr, num);
-	end = GetTickCount64();
-	t[1].sort_time = end - start;
-	t[1].num = 1;
-
-	Restore(num);
-	start = GetTickCount64();
-	SelectSort(arr, num);
-	end = GetTickCount64();
-	t[2].sort_time = end - start;
-	t[2].num = 2;
-
-	Restore(num);
-	start = GetTickCount64();
-	QuickSort(arr, 0, num);
-	end = GetTickCount64();
-	t[3].sort_time = end - start;
-	t[3].num = 3;
-
-	Restore(num);
-	start = GetTickCount64();
-	MegerSort(arr, 0, num - 1, num);
-	end = GetTickCount64();
-	t[4].sort_time = end - start;
-	t[4].num = 4;
-
-
-	Restore(num);
-	start = GetTickCount64();
-	BubbleSort(arr, num);
-	end = GetTickCount64();
-	t[5].sort_time = end - start;
-	t[5].num = 5;
+	TestMostSort(0, &num, InsertSort);
+	TestMostSort(1, &num, ShellSort);
+	TestMostSort(2, &num, SelectSort);
+	TestQuickSort(&num);
+	TestMegerSort(&num);
+	TestMostSort(5, &num, BubbleSort);
 
 	sort(t, t + NUMBER, CompareWithSortTime);
 	t[0].ranking = 1;
@@ -302,38 +444,54 @@ void RunSort(int num) {
 			t[i].ranking = i + 1;
 	}
 	sort(t, t + NUMBER, CompareWithNum);
-	total_end = end = GetTickCount64();
-	total_sort_time  = total_end - total_start;
+	total_END = END = GetTickCount64();
+	total_sort_time = total_END - total_START;
+}
 
-	printf("\t\|  总共用时为：%I64d毫秒\n", total_sort_time);
-	printf("\t ----------------------------------------------------------------------------------\n");
-	printf("\t\|                 -----      五种算法性能比较结果如下          ------              \|\n");
-	printf("\t ----------------------------------------------------------------------------------\n");
-	printf("\t\| 排 序 方 法\| 比较的次数 \| 交换的次数 \| 移动的次数 \|时间（ms）\|时间排名\|时间复杂度\|\n");
-	printf("\t ----------------------------------------------------------------------------------\n");
-	printf("\t\|直接插入排序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|    n*n   \|\n", compare_number[0], swap_number[0], move_number[0], t[0].sort_time, t[0].ranking);
-	printf("\t ----------------------------------------------------------------------------------\n");
-	printf("\t\| 希 尔 排 序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", compare_number[1], swap_number[1], move_number[1], t[1].sort_time, t[1].ranking);	
-	printf("\t ----------------------------------------------------------------------------------\n");
-	printf("\t\|简单选择排序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|    n*n   \|\n", compare_number[2], swap_number[2], move_number[2], t[2].sort_time, t[2].ranking);
-	printf("\t ----------------------------------------------------------------------------------\n");
-	printf("\t\| 快 速 排 序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", compare_number[3], swap_number[3], move_number[3], t[3].sort_time, t[3].ranking);
-	printf("\t ----------------------------------------------------------------------------------\n");
-	printf("\t\| 归 并 排 序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", compare_number[4], swap_number[4], move_number[4], t[4].sort_time, t[4].ranking);
-	printf("\t ----------------------------------------------------------------------------------\n");
-	printf("\t\| 冒 泡 排 序\|%12lld\|%12lld\|%12lld\|%10lld\|%10d\|  n*log2n \|\n", compare_number[5], swap_number[5], move_number[5], t[5].sort_time, t[5].ranking);
-	printf("\t ----------------------------------------------------------------------------------\n");
+//存储一次的排序结果
+void StorageOneSortResult(Group* gPoint, int i) {
+
+	for (int j = 0; j < 6; j++)
+	{
+		(*gPoint).result[i].compare_number[j] = compare_number[j];
+		(*gPoint).result[i].swap_number[j] = swap_number[j];
+		(*gPoint).result[i].move_number[j] = move_number[j];
+
+		(*gPoint).result[i].num[j] = t[j].num;
+		(*gPoint).result[i].sort_time[j] = t[j].sort_time;
+		(*gPoint).result[i].ranking[j] = t[j].ranking;
+	}
+}
+
+//存储排序结果
+void StorageSortResult() {
+	Group* gPoint = &InitGroup();
+	if (group_num == 1)
+	{
+		StorageOneSortResult(gPoint,0);
+		return;
+	}
+	for (int i = 0; i < group_num; i++)
+	{
+		CalculateSortResult(numArr[i]);
+		StorageOneSortResult(gPoint, i);
+	}
 	return;
 }
 
+//进行排序
+void OneRunSort(int num) {
+	int i;
+	printf("\t\|                                                   \|\n");
+	printf("\t ----------------------------------------------------\n");
+	printf("\t\|  请稍等......                                     \|\n");
+	printf("\t\|                                                   \|\n");
+	CalculateSortResult(num);
+	StorageSortResult();
 
-
-
-
-
-
-
-
+	PrintOneSortResult();
+	return;
+}
 
 //对输入的数字进行分析，判断格式是否全为十进制
 int NumberJudge() {
@@ -352,21 +510,21 @@ int NumberJudge() {
 	return n;
 }
 
-int main() {
-	system("color 0A");
+//显示只有一组的排序算法结果的菜单
+void OneSortMenu() {
 	int num;//数字元素的个数
+	
 	system("cls");
 	printf("\t\|                                                   \|\n");
 	printf("\t\|  请你输入待排序数列的数字元素的个数 n(按0退出)（数字越大，时间越长，大于十万数字请耐心等待）：");
 	num = NumberJudge();
 	if (num == 0) {
 		printf("退出排序程序\n");
-		return 0;
+		return ;
 	}
-
-	RunSort(num);
+	OneRunSort(num);
 	system("pause");
-	while (num !=0)
+	while (num != 0)
 	{
 		system("cls");
 		printf("\t\|                                                   \|\n");
@@ -374,12 +532,76 @@ int main() {
 		num = NumberJudge();
 		if (num == 0) {
 			printf("退出排序程序\n");
-			return 0;
+			return ;
 		}
-		RunSort(num);
+		OneRunSort(num);
 		system("pause");
 	}
 	printf("退出排序\n");
+}
+
+//显示多组的排序算法结果的菜单
+void GroupSortMenu() {
+	int num =0;//数字元素的个数
+	system("cls");
+	printf("\t\|                                                   \|\n");
+	printf("\t\|  请你输入分组的个数 n(按0退出)");
+	group_num = NumberJudge();
+	if (group_num == 0) {
+		printf("退出排序程序\n");
+		return;
+	}
+	InitGroup();
+	numArr = (int*)malloc(group_num*sizeof(int));
+	if (numArr == NULL) {
+		printf("内存溢出！\n");
+		return;
+	}
+
+	printf("\t\|  请你依次输入待排序数列的数字元素的个数 e(按0退出)\n");
+	for (int i= 0; i < group_num; i++)
+	{
+		printf("\t\|  输入第%d个元素\t",i+1);
+		numArr[i] = NumberJudge();
+	}
+	
+	StorageSortResult();
+
+	printf("\n\t\|下面显示多组排序的结果\n");
+	PrintGroupSortResult();
+	free(numArr);
+	printf("退出排序\n");
+}
+
+//打印主功能界面
+void MainMenu() {
+	printf("");
+	printf("");
+	printf("");
+	printf("");
+	printf("");
+	printf("");
+	printf("");
+	printf("");
+	cout << "\t ----------------------------------------------------" << endl;
+	cout << "\t\|            六种内部排序算法的性能比较             \|" << endl;
+	cout << "\t----------------------------------------------------" << endl;
+	cout << "\t\|                                                   \|" << endl;
+	cout << "\t\|  1-生成目标列表比较各种排序算法的性能             \|" << endl;
+	cout << "\t\|  0-退出系统                                       \|" << endl;
+	cout << "\t\|                                                   \|" << endl;
+	cout << "\t ----------------------------------------------------" << endl;
+	cout << "\t\|                                                   \|" << endl;
+	printf("MainMenu\n");
+	printf("");
+}
+int main() {
+	system("color 0A");
+	group_num = 1;//重新变为1，只有一个分组的情况
+
+	GroupSortMenu();
+	//OneSortMenu();
+
 	return 0;
 }
 

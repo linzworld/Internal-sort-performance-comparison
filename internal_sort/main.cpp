@@ -82,8 +82,8 @@ void test2() {
 }
 int main( ) {
 	system("color 0A");
-	//printf("请输入控制台打印延时的时间(单位：ms):\t");
-	//scanf_s("%d",&delay_time);
+	printf("请输入控制台打印延时的时间(单位：ms):\t");
+	scanf_s("%d",&delay_time);
 	//test1();
 	test2();
 
